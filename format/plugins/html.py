@@ -1,7 +1,7 @@
 '''
 Author: Abel
 Date: 2022-12-26 16:27:54
-LastEditTime: 2023-06-20 15:09:53
+LastEditTime: 2023-06-20 17:12:34
 '''
 import platform
 import time
@@ -10,17 +10,8 @@ from playwright.async_api import async_playwright
 
 async def html_to_png(html: str, selector: str=None):
     async with async_playwright() as p:
-        # only ubuntu server can run this docker image,
-        # in order to avoid running "playwright install",
-        # exact executable path is necessary
-        if platform.system() == 'Linux':
-            executable_path = 'driver/chromium-1019/chrome-linux/chrome'
-        else:
-            executable_path = None
-
         b = await p.chromium.launch(
-            headless=True,
-            executable_path=executable_path
+            headless=True
             )
         c = await b.new_context(no_viewport=True)
         p = await c.new_page()
