@@ -1,7 +1,7 @@
 '''
 Author: Abel
 Date: 2022-12-26 17:18:18
-LastEditTime: 2022-12-27 23:39:31
+LastEditTime: 2023-06-20 17:18:23
 '''
 from loguru import logger
 from fastapi import FastAPI
@@ -26,7 +26,6 @@ class Item(BaseModel):
     type: str
     content: str
     selector: str = None
-
 
 @app.post('/api/to_png')
 async def to_png(item: Item):
