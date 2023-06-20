@@ -29,7 +29,7 @@ class TempUrl:
     def __init__(self, content: str):
         self.content = content
         self.dir = 'statics/temp'
-        self.hostname = 'http://localhost:9527'
+        self.hostname = 'http://localhost:19527'
         self.file = None
     
     def __enter__(self):
