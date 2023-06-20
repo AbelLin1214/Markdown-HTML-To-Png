@@ -24,7 +24,7 @@ RUN ln -s /usr/local/lib/libpython3.10.so.1.0 /usr/lib/
 # RUN ln -s /usr/path/to/libffi.so.7 /usr/path/to/libffi.so.6
 
 WORKDIR /app
-RUN sed -i 's/archive.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
+RUN sed -i "s/archive.ubuntu.com/mirrors.aliyun.com/g" /etc/apt/sources.list
 RUN sed -i 's/security.ubuntu.com/mirrors.aliyun.com/g' /etc/apt/sources.list
 RUN apt update
 RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple

@@ -1,7 +1,7 @@
 <!--
  * @Author: Abel
  * @Date: 2023-06-20 14:43:34
- * @LastEditTime: 2023-06-20 16:01:09
+ * @LastEditTime: 2023-06-20 16:57:49
 -->
 ## ``Markdown`` ``HTML`` 转png图片
 
@@ -33,7 +33,7 @@ data = {
     ),
 }
 
-resp = requests.post('http://{server_host}:9527/api/to_png', json=data)
+resp = requests.post('http://{server_host}:19527/api/to_png', json=data)
 
 with open('result.png', 'wb') as f:
     f.write(resp.content)
@@ -54,7 +54,7 @@ data = {
     'selector': '//body'
 }
 
-resp = requests.post('http://{server_host}:9527/api/to_png', json=data)
+resp = requests.post('http://{server_host}:19527/api/to_png', json=data)
 
 with open('result.png', 'wb') as f:
     f.write(resp.content)
