@@ -6,3 +6,4 @@ services:
     ports:
       - "19527:19527"
     command: uvicorn app:app --host 0.0.0.0 --port 19527
+    tty: true
