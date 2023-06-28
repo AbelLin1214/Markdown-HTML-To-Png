@@ -2,6 +2,7 @@ version: '3.1'
 services:
   png-server:
     image: png-server
+    container_name: png-server
     build: .
     ports:
       - "19527:19527"
