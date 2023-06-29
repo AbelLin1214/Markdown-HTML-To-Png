@@ -1,7 +1,7 @@
 '''
 Author: Abel
 Date: 2022-12-26 16:27:54
-LastEditTime: 2023-06-28 18:02:58
+LastEditTime: 2023-06-29 09:08:34
 '''
 import platform
 import time
@@ -15,16 +15,17 @@ async def html_to_png(html: str, selector: str=None):
             )
         c = await b.new_context(no_viewport=True)
         p = await c.new_page()
-        with TempUrl(content=html) as url:
-            await p.goto(url)
-            await p.wait_for_load_state('networkidle')  # sometimes need to load js via network
-            # await p.keyboard.press('Control+End')  # 滚至页面底部
-            selector = selector or '//body'
-            ele = await p.wait_for_selector(selector, state='visible')
-            img_bytes = await ele.screenshot(path='statics/temp/temp.png', scale='css')
-            await c.close()
+        try:
+            with TempUrl(content=html) as url:
+                await p.goto(url)
+                await p.wait_for_load_state('networkidle')  # sometimes need to load js via network
+                # await p.keyboard.press('Control+End')  # 滚至页面底部
+                selector = selector or '//body'
+                ele = await p.wait_for_selector(selector, state='visible')
+                img_bytes = await ele.screenshot(path='statics/temp/temp.png', scale='css')
+                return img_bytes
+        finally:
             await b.close()
-            return img_bytes
 
 class TempUrl:
     '''临时文件处理器'''
