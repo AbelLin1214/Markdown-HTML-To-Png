@@ -1,7 +1,7 @@
 '''
 Author: Abel
 Date: 2022-12-26 16:27:54
-LastEditTime: 2023-06-29 09:08:34
+LastEditTime: 2023-06-29 09:12:44
 '''
 import platform
 import time
@@ -25,6 +25,8 @@ async def html_to_png(html: str, selector: str=None):
                 img_bytes = await ele.screenshot(path='statics/temp/temp.png', scale='css')
                 return img_bytes
         finally:
+            await p.close()
+            await c.close()
             await b.close()
 
 class TempUrl:
