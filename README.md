@@ -1,7 +1,7 @@
 <!--
  * @Author: Abel
  * @Date: 2023-06-20 14:43:34
- * @LastEditTime: 2023-06-20 16:57:49
+ * @LastEditTime: 2023-10-18 16:38:25
 -->
 ## ``Markdown`` ``HTML`` 转png图片
 
@@ -49,7 +49,7 @@ with open('result.png', 'wb') as f:
 import requests
 
 data = {
-    'type': 'markdown',
+    'type': 'html',
     'content': '''{your_html_str}''',
     'selector': '//body'
 }
