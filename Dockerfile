@@ -6,8 +6,5 @@ RUN echo "deb https://mirrors.tuna.tsinghua.edu.cn/ubuntu/ jammy main restricted
 
 WORKDIR /app
 RUN pip config set global.index-url https://pypi.tuna.tsinghua.edu.cn/simple
-COPY ./src .
-COPY ./pyproject.toml .
-COPY ./pdm.lock .
-COPY ./statics ./statics
+COPY . .
 RUN pip install .
