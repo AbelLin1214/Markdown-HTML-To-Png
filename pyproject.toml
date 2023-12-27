@@ -6,12 +6,12 @@ authors = [
     {name = "Abel", email = "icyheart1214@163.com"},
 ]
 dependencies = [
-    "mistune==3.0.0rc4",
-    "uvicorn==0.20.0",
-    "fastapi==0.88.0",
-    "loguru==0.6.0",
-    "pydantic==1.10.2",
-    "playwright==1.39.0",
+    "mistune>=3.0.0rc4",
+    "uvicorn>=0.20.0",
+    "fastapi>=0.88.0",
+    "loguru>=0.6.0",
+    "pydantic>2.0",
+    "playwright>=1.39.0",
 ]
 requires-python = ">=3.10"
 readme = "README.md"
