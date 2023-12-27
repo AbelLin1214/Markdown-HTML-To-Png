@@ -1,7 +1,7 @@
 '''
 Author: Abel
 Date: 2022-12-26 16:27:54
-LastEditTime: 2023-12-27 10:09:38
+LastEditTime: 2023-12-27 14:21:27
 '''
 import os
 import time
@@ -64,9 +64,11 @@ async def html_to_png(html: str=None, selector: str=None, proxy: str=None, url: 
         if url:
             await page.goto(url)
             await page.wait_for_load_state('networkidle')
-            selector = selector or '//body'
-            ele = await page.wait_for_selector(selector, state='visible')
-            img_bytes = await ele.screenshot(path='temp/temp.png', scale='css')
+            if selector:
+                ele = await page.wait_for_selector(selector, state='visible')
+                img_bytes = await ele.screenshot(path='temp/temp.png', scale='css')
+            else:
+                img_bytes = await page.screenshot(path='temp/temp.png', full_page=True)
             return img_bytes
 
         with TempUrl(content=html) as url:
