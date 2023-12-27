@@ -1,0 +1,25 @@
+[project]
+name = "to-pic"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Abel", email = "icyheart1214@163.com"},
+]
+dependencies = [
+    "mistune==3.0.0rc4",
+    "uvicorn==0.20.0",
+    "fastapi==0.88.0",
+    "loguru==0.6.0",
+    "pydantic==1.10.2",
+    "playwright==1.39.0",
+]
+requires-python = ">=3.10"
+readme = "README.md"
+license = {text = "MIT"}
+
+[project.scripts]
+to-pic = "to_pic.__main__:main"
+
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"

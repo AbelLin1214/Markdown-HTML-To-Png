@@ -1,11 +1,13 @@
 '''
 Author: Abel
 Date: 2022-12-26 16:27:54
-LastEditTime: 2023-06-29 09:28:16
+LastEditTime: 2023-12-27 10:09:38
 '''
+import os
 import time
 from pathlib import Path
 from playwright.async_api import async_playwright
+from contextlib import asynccontextmanager
 
 class NewPage:
     '''新建页面处理器'''
@@ -24,7 +26,7 @@ class NewPage:
         '''获取浏览器实例'''
         if cls.__browser is None:
             cls.__browser = await cls.__playwright.chromium.launch(
-                headless=True
+                headless=os.getenv('HEADLESS', 'true') == 'true',
                 )
         return cls.__browser
     
@@ -41,35 +43,46 @@ class NewPage:
             await cls.__browser.close()
         if cls.__playwright is not None:
             await cls.__playwright.stop()
-    
-    async def __aenter__(self):
+
+    @classmethod
+    @asynccontextmanager
+    async def new(cls, proxy: str):
         '''新建页面'''
-        await self.start()
-        self.__context = await self.__browser.new_context(no_viewport=True)
-        self.__page = await self.__context.new_page()
-        return self.__page
+        await cls.start()
+        context = await cls.__browser.new_context(
+            no_viewport=True,
+            ignore_https_errors=True,
+            proxy=None if proxy is None else {'server': proxy}
+            )
+        page = await context.new_page()
+        yield page
+        await context.close()
 
-    async def __aexit__(self, exc_type, exc, tb):
-        '''关闭页面和上下文'''
-        await self.__context.close()
-
-async def html_to_png(html: str, selector: str=None):
+async def html_to_png(html: str=None, selector: str=None, proxy: str=None, url: str=None):
     '''将html转换为png'''
-    async with NewPage() as page:
+    async with NewPage.new(proxy) as page:
+        if url:
+            await page.goto(url)
+            await page.wait_for_load_state('networkidle')
+            selector = selector or '//body'
+            ele = await page.wait_for_selector(selector, state='visible')
+            img_bytes = await ele.screenshot(path='temp/temp.png', scale='css')
+            return img_bytes
+
         with TempUrl(content=html) as url:
             await page.goto(url)
             await page.wait_for_load_state('networkidle')  # sometimes need to load js via network
             # await page.keyboard.press('Control+End')  # 滚至页面底部
             selector = selector or '//body'
             ele = await page.wait_for_selector(selector, state='visible')
-            img_bytes = await ele.screenshot(path='statics/temp/temp.png', scale='css')
+            img_bytes = await ele.screenshot(path='temp/temp.png', scale='css')
             return img_bytes
 
 class TempUrl:
     '''临时文件处理器'''
     def __init__(self, content: str):
         self.content = content
-        self.dir = 'statics/temp'
+        self.dir = 'temp'
         self.hostname = 'http://localhost:19527'
         self.file = None
     

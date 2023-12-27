@@ -1,3 +1,7 @@
 *test*
 .DS_Store
 __pycache__
+.pdm-build
+.venv
+temp
+.pdm-python
