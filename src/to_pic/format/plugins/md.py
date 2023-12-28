@@ -1,17 +1,18 @@
 '''
 Author: Abel
 Date: 2022-12-26 16:11:13
-LastEditTime: 2023-12-27 10:00:41
+LastEditTime: 2023-12-28 10:18:18
 '''
 import mistune
 from loguru import logger
 from playwright._impl._api_types import Error as P_ERR
+from playwright.async_api import Page
 from mistune.plugins import _plugins
 from .html import html_to_png
 
 template = open('statics/template.html', 'r', encoding='utf-8').read()
 
-async def md_to_png(md_text: str):
+async def md_to_png(page: Page, md_text: str):
     markdown = mistune.create_markdown(
         escape=False, plugins=list(_plugins.keys()))
     html = markdown(md_text)
@@ -23,7 +24,7 @@ async def md_to_png(md_text: str):
     for _ in range(3):
         try:            
             html = html.replace(old_scale, f'scale({scale}, {scale})')
-            return await html_to_png(html, '//body/article')
+            return await html_to_png(page, html, '//body/article')
         except P_ERR as e:
             if 'Page.captureScreenshot' in str(e):
                 old_scale = f'scale({scale}, {scale})'

@@ -1,84 +1,74 @@
 '''
 Author: Abel
 Date: 2022-12-26 16:27:54
-LastEditTime: 2023-12-27 14:21:27
+LastEditTime: 2023-12-28 12:09:30
 '''
-import os
 import time
 from pathlib import Path
-from playwright.async_api import async_playwright
-from contextlib import asynccontextmanager
+from urllib.parse import urlparse
+from playwright.async_api import Page, Request
+from typing import Literal
 
-class NewPage:
-    '''新建页面处理器'''
-    __playwright = None
-    __browser = None
+class RequestListener:
+    '''请求监听器'''
+    def __init__(self):
+        self._last_request_time = time.time()
     
-    @classmethod
-    async def get_playwright(cls):
-        '''获取playwright实例'''
-        if cls.__playwright is None:
-            cls.__playwright = await async_playwright().start()
-        return cls.__playwright
-    
-    @classmethod
-    async def get_browser(cls):
-        '''获取浏览器实例'''
-        if cls.__browser is None:
-            cls.__browser = await cls.__playwright.chromium.launch(
-                headless=os.getenv('HEADLESS', 'true') == 'true',
-                )
-        return cls.__browser
-    
-    @classmethod
-    async def start(cls):
-        '''启动playwright和浏览器'''
-        await cls.get_playwright()
-        await cls.get_browser()
-    
-    @classmethod
-    async def close(cls):
-        '''关闭playwright和浏览器'''
-        if cls.__browser is not None:
-            await cls.__browser.close()
-        if cls.__playwright is not None:
-            await cls.__playwright.stop()
+    async def listen(self, request: Request):
+        '''监听请求'''
+        self._last_request_time = time.time()
 
-    @classmethod
-    @asynccontextmanager
-    async def new(cls, proxy: str):
-        '''新建页面'''
-        await cls.start()
-        context = await cls.__browser.new_context(
-            no_viewport=True,
-            ignore_https_errors=True,
-            proxy=None if proxy is None else {'server': proxy}
-            )
-        page = await context.new_page()
-        yield page
-        await context.close()
+    def network_idle(self, timeout: float=0.5):
+        '''判断网络是否空闲'''
+        return time.time() - self._last_request_time > timeout
+    
+    async def wait_for_network_idle(self, page: Page, timeout: float):
+        '''等待网络空闲'''
+        while not self.network_idle(timeout):
+            await page.wait_for_timeout(0.1)
 
-async def html_to_png(html: str=None, selector: str=None, proxy: str=None, url: str=None):
+async def html_to_png(
+        page: Page,
+        html: str=None,
+        selector: str=None,
+        url: str=None,
+        image_type: Literal['png', 'jpeg']='png',
+        quality: int=100
+        ):
     '''将html转换为png'''
-    async with NewPage.new(proxy) as page:
-        if url:
-            await page.goto(url)
-            await page.wait_for_load_state('networkidle')
-            if selector:
-                ele = await page.wait_for_selector(selector, state='visible')
-                img_bytes = await ele.screenshot(path='temp/temp.png', scale='css')
-            else:
-                img_bytes = await page.screenshot(path='temp/temp.png', full_page=True)
-            return img_bytes
-
-        with TempUrl(content=html) as url:
-            await page.goto(url)
-            await page.wait_for_load_state('networkidle')  # sometimes need to load js via network
-            # await page.keyboard.press('Control+End')  # 滚至页面底部
-            selector = selector or '//body'
+    quality = None if image_type == 'png' else quality
+    if url:
+        listener = RequestListener()
+        page.on('request', listener.listen)
+        await page.goto(url)
+        # wait_for_load_state如果已经达成了networkidle
+        # 再次调用会因为没有新的请求而阻塞
+        # 而部分页面在达成load状态后就不会再发起新的请求
+        # 所以不能直接使用page.wait_for_loadstate('networkidle')
+        await listener.wait_for_network_idle(page, 1)
+        if selector:
             ele = await page.wait_for_selector(selector, state='visible')
-            img_bytes = await ele.screenshot(path='temp/temp.png', scale='css')
-            return img_bytes
+            img_bytes = await ele.screenshot(
+                type=image_type,
+                path=f'temp/temp.{image_type}',
+                scale='css', quality=quality
+            )
+        else:
+            img_bytes = await page.screenshot(
+                type=image_type,
+                path=f'temp/temp.{image_type}',
+                full_page=True, quality=quality
+            )
+        return img_bytes
+
+    with TempUrl(content=html) as url:
+        await page.goto(url)
+        await page.wait_for_load_state('networkidle')  # sometimes need to load js via network
+        # await page.keyboard.press('Control+End')  # 滚至页面底部
+        selector = selector or '//body'
+        ele = await page.wait_for_selector(selector, state='visible')
+        img_bytes = await ele.screenshot(path='temp/temp.png', scale='css')
+        return img_bytes
 
 class TempUrl:
     '''临时文件处理器'''
