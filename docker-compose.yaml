@@ -7,4 +7,6 @@ services:
     ports:
       - "19527:19527"
     command: to-pic
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
     tty: true
