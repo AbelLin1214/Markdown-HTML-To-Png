@@ -10,3 +10,4 @@ services:
     volumes:
       - /etc/localtime:/etc/localtime:ro
     tty: true
+    restart: unless-stopped
