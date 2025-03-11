@@ -1,7 +1,7 @@
 '''
 Author: Abel
 Date: 2022-12-26 17:18:18
-LastEditTime: 2023-12-28 12:07:57
+LastEditTime: 2025-03-11 10:32:17
 '''
 import os
 from pathlib import Path
@@ -76,3 +76,7 @@ async def to_png(item: Item):
             return {'code': -1, 'msg': '请求错误：不支持当前格式或等待超时'}
         
     return png_response(img_bytes, item.image_type)
+
+@app.get("/health")
+async def health():
+    return {"success": True}
