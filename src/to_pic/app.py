@@ -1,7 +1,7 @@
 '''
 Author: Abel
 Date: 2022-12-26 17:18:18
-LastEditTime: 2023-12-27 10:35:32
+LastEditTime: 2025-03-11 11:33:00
 '''
 from pathlib import Path
 from loguru import logger
@@ -56,3 +56,7 @@ async def to_png(item: Item):
     if not img_bytes:
         return {'code': -1, 'msg': '请求错误：不支持当前格式'}
     return png_response(img_bytes)
+
+@app.get('/health')
+async def health():
+    return {'success': True}
